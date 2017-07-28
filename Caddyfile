@@ -1,0 +1,17 @@
+0.0.0.0:8080
+tls off
+root ./public
+proxy /socket.io/ 0.0.0.0:3000 {
+	policy round_robin
+	websocket
+	transparent
+}
+
+fastcgi / 127.0.0.1:9000 php
+
+rewrite {
+        to {path} {path}/ /index.php?{query}
+}
+
+errors stdout
+log stdout
