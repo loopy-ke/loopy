@@ -59,14 +59,12 @@ class ImagingController extends Controller
     {
         $uri = $request->url;
 
-        $format = $request->get('format', 'pdf');
-
         if (!$uri) {
-            abort(400, 'Bad request. Missing report ?url=foo');
+            abort(404, 'Bad request. Missing url');
         }
 
         $out = tempnam('/tmp', 'pdf');
-        $cookies = [];
+        $cookies = $request->get('cookies');
         if (count($cookies) == 0) {
             $cookies = $_COOKIE;
         }

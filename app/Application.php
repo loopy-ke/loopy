@@ -28,7 +28,7 @@ class Application extends Model
 
     public function checkSign($token, $url)
     {
-        return sha1($url . $this->secret) == $token;
+        return sha1($this->key . $url . $this->secret) == $token;
     }
 
     public function save(array $options = [])
