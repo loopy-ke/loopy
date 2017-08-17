@@ -17,4 +17,4 @@ Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::get('{app}/{token}/pdf', 'ImagingController@printPdf');
+Route::any('{app}/{token}/{format}', 'ImagingController@convert');

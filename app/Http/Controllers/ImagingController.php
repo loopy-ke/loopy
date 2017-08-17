@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Helpers\Prince;
 use Carbon\Carbon;
 use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\CookieJar;
@@ -11,7 +12,6 @@ use Illuminate\Http\Request;
 class ImagingController extends Controller
 {
 
-    public $requiresAuth = false;
 
     public function __construct()
     {
@@ -55,46 +55,78 @@ class ImagingController extends Controller
         }
     }
 
-    public function printPdf(Request $request)
+    public function convert(Request $request, $app, $token, $format)
     {
         $uri = $request->url;
+        if ($uri) {
+            $cookies = $request->get('cookies');
+            if (count($cookies) == 0) {
+                $cookies = $_COOKIE;
+            }
 
-        if (!$uri) {
-            abort(404, 'Bad request. Missing url');
-        }
+            $client = new Client();
+            $jar = new CookieJar(false);
+            foreach ($cookies as $key => $cookie) {
+                $jar->setCookie((new SetCookie(['Name' => $key,
+                    'Value' => $cookie,
+                    'Domain' => request()->getHost(),
+                    'Expires' => Carbon::now()->addDay(1)->toCookieString()])));
+            }
 
-        $out = tempnam('/tmp', 'pdf');
-        $cookies = $request->get('cookies');
-        if (count($cookies) == 0) {
-            $cookies = $_COOKIE;
-        }
-
-        $client = new Client();
-        $jar = new CookieJar(false);
-        foreach ($cookies as $key => $cookie) {
-            $jar->setCookie((new SetCookie(['Name' => $key,
-                'Value' => $cookie,
-                'Domain' => request()->getHost(),
-                'Expires' => Carbon::now()->addDay(1)->toCookieString()])));
-        }
-
-        $response = $client->get($uri, ['cookies' => $jar]);
-        $file = tempnam('/tmp', 'html');
-
-        file_put_contents($file, $response->getBody()->getContents());
-
-        $output = [];
-
-        exec("prince '$file'  -o '$out.orig' 2>&1 >/dev/null", $output, $status);
-
-        if (!env('HAS_NO_LIB_CAM_PERL')) {
-            exec("rewritepdf -C '$out.orig' '$out' 2>&1 >/dev/null", $output, $status);
+            $response = $client->get($uri, ['cookies' => $jar]);
+            $file = tempnam('/tmp', 'html');
+            file_put_contents($file, $response->getBody()->getContents());
+            return $this->convertFile($file, $format);
+        } else if ($request->isMethod('post') && $request->hasFile('page')) {
+            $page = $request->file('page');
+            $stylesheets = $request->file('stylesheets');
+            if (is_array($stylesheets)) {
+                $sheets = collect($stylesheets)->map(function ($k) {
+                    return $k->path();
+                });
+                return $this->convertFile($page->path(), $format, $sheets);
+            }
+            return $this->convertFile($page->path(), $format, []);
         } else {
-            $out = "$out.orig";
+            abort(404, "Bad request");
         }
+    }
 
-        if (!file_exists($out) || filesize($out) < 1) {
-            abort(500, 'Apologies, unknown error!');
+    public function test()
+    {
+
+    }
+
+    protected function convertFile($file, $format = 'pdf', $stylesheets = [], $directDownload = true, $page = 1)
+    {
+        $prince = new Prince('prince');
+        $output = [];
+        $id = uniqid('');
+        $dir = public_path('resources/' . $id);
+        @mkdir($dir, 0777, true);
+        $out = "$dir/rendered.out";
+        foreach ($stylesheets as $styleSheet) {
+            $prince->addStyleSheet($styleSheet);
+        }
+        if ($format == 'pdf') {
+            $prince->convert_file_to_file($file, "$out.orig");
+            $prince->setPDFAuthor(config('app.name'));
+            $prince->setPDFCreator(config('app.name'));
+
+            if (!env('HAS_NO_LIB_CAM_PERL')) {
+                exec("rewritepdf -C '$out.orig' '$out' 2>&1 >/dev/null", $output, $status);
+            } else {
+                $out = "$out.orig";
+            }
+            if (!file_exists($out) || filesize($out) < 1) {
+                abort(500, 'Apologies, unknown error!');
+            }
+        } else if ('png') {
+            $msgs = [];
+            $data = [];
+            $out = "$dir";
+            $prince->convert_file_to_image($file, "$out", $msgs, $data, $format);
+            $out = "$out/image1." . $format;
         }
         return response()->file($out)->deleteFileAfterSend(true);
     }

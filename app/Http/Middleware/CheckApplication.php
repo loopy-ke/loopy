@@ -23,9 +23,9 @@ class CheckApplication
         $token = $tree->get(2);
         $url = $request->get('url');
         $app = Application::fromKey($key);
-        if ($app && $app->checkSign($token, $url)) {
+//        if ($app && $app->checkSign($token, $url)) {
             return $next($request);
-        }
+//        }
         abort(404, 'The specified token was invalid');
     }
 
