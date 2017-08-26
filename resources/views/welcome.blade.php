@@ -1,6 +1,6 @@
 @extends('app')
 @section('header')       <h2>Convert your HTML documents to PDF easily</h2>
-<a href="{{ url('/') }}" class="btn btn-outline btn-xl">Start Now!</a>
+<a href="{{ url('/test') }}" class="btn btn-outline btn-xl">Start Now!</a>
 @endsection
 @section('body')
     <section class="features" id="features">
