@@ -55,7 +55,7 @@ class ImagingController extends Controller
         }
     }
 
-    public function convert(Request $request, $app, $token, $format)
+    public function convert(Request $request, $format)
     {
         $uri = $request->url;
         if ($uri) {

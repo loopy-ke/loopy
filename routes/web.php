@@ -14,11 +14,3 @@
 Route::get('/', function () {
     return view('welcome');
 });
-
-Route::get('/test', function () {
-    return view('test');
-});
-Route::post('/test', function () {
-    $imaging = new \App\Http\Controllers\ImagingController();
-    return $imaging->convert(request(), null, null, request('format', 'pdf'));
-});
