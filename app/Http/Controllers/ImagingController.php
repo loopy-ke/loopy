@@ -91,12 +91,6 @@ class ImagingController extends Controller
             abort(404, "Bad request");
         }
     }
-
-    public function test()
-    {
-
-    }
-
     protected function convertFile($file, $format = 'pdf', $stylesheets = [], $directDownload = true, $page = 1)
     {
         $prince = new Prince('prince');
