@@ -12,6 +12,5 @@
 */
 
 Route::get('/', function () {
-    return (new \App\Console\Commands\TradeScraper())->pull();
     return view('welcome');
 });
