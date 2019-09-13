@@ -26,7 +26,7 @@ class TradeScraper extends Command
      */
     protected $description = 'Scrap data from meta trader statements';
 
-    protected $url = "https://www.forexfactory.com/explorerapi.php?content=tradeslist&id=173443&ticket=0";
+    protected $url = "https://www.forexfactory.com/explorerapi.php?content=tradeslist&id=172985";
 
     public function handle()
     {
