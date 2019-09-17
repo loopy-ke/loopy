@@ -44,7 +44,7 @@ class TradeScraper extends Command
         foreach ($this->urls as $url) {
             $key = 'traidts_data' . $url;
             if (!cache()->has($key)) {
-                cache()->put($key, (new Client())->get($this->url)->getBody()->getContents(), Carbon::now()->addMinutes(25));
+                cache()->put($key, (new Client())->get($url)->getBody()->getContents(), Carbon::now()->addMinutes(25));
             }
             $data = json_decode(cache($key))->html;
             ini_set('memory_limit', '1024M');
