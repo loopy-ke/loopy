@@ -29,6 +29,7 @@ class TradeScraper extends Command
     protected $urls = [
         "https://www.forexfactory.com/explorerapi.php?content=tradeslist&id=172985",
         "https://www.forexfactory.com/explorerapi.php?content=tradeslist&id=176732",
+        "https://www.forexfactory.com/explorerapi.php?content=tradeslist&id=176740",
         "https://www.forexfactory.com/explorerapi.php?content=tradeslist&id=176572",
         "https://www.forexfactory.com/explorerapi.php?content=tradeslist&id=173443",
         "https://www.forexfactory.com/explorerapi.php?content=tradeslist&id=175165",
