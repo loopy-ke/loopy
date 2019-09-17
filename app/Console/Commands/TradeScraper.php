@@ -29,11 +29,20 @@ class TradeScraper extends Command
     protected $urls = [
         "https://www.forexfactory.com/explorerapi.php?content=tradeslist&id=172985",
         "https://www.forexfactory.com/explorerapi.php?content=tradeslist&id=176732",
+        "https://www.forexfactory.com/explorerapi.php?content=tradeslist&id=176572",
         "https://www.forexfactory.com/explorerapi.php?content=tradeslist&id=173443",
+        "https://www.forexfactory.com/explorerapi.php?content=tradeslist&id=175165",
+        "https://www.forexfactory.com/explorerapi.php?content=tradeslist&id=172847",
+        "https://www.forexfactory.com/explorerapi.php?content=tradeslist&id=171121",
         "https://www.forexfactory.com/explorerapi.php?content=tradeslist&id=171470",
         "https://www.forexfactory.com/explorerapi.php?content=tradeslist&id=156879",
         "https://www.forexfactory.com/explorerapi.php?content=tradeslist&id=147293",
-        "https://www.forexfactory.com/explorerapi.php?content=tradeslist&id=176270"
+        "https://www.forexfactory.com/explorerapi.php?content=tradeslist&id=176270",
+        "https://www.forexfactory.com/explorerapi.php?content=tradeslist&id=176846",
+        "https://www.forexfactory.com/explorerapi.php?content=tradeslist&id=174366",
+        "https://www.forexfactory.com/explorerapi.php?content=tradeslist&id=173447",
+        "https://www.forexfactory.com/explorerapi.php?content=tradeslist&id=174868",
+        "https://www.forexfactory.com/explorerapi.php?content=tradeslist&id=173248",
     ];
 
     public function handle()
@@ -44,7 +53,7 @@ class TradeScraper extends Command
         foreach ($this->urls as $url) {
             $key = 'traidts_data' . $url;
             if (!cache()->has($key)) {
-                cache()->put($key, (new Client())->get($url)->getBody()->getContents(), Carbon::now()->addMinutes(25));
+                cache()->put($key, (new Client())->get($url)->getBody()->getContents(), Carbon::now()->addMinutes(5));
             }
             $data = json_decode(cache($key))->html;
             ini_set('memory_limit', '1024M');
