@@ -56,28 +56,30 @@ class TradeScraper extends Command
             if (!cache()->has($key)) {
                 cache()->put($key, (new Client())->get($url)->getBody()->getContents(), Carbon::now()->addMinutes(5));
             }
-            $data = json_decode(cache($key))->html;
-            ini_set('memory_limit', '1024M');
-            $dom = new Dom;
-            $dom->load($data);
-            $rows = $dom->find('.orders_open > table.explorer_tradeslist__table > tbody > tr.explorer_tradeslist__row');
-            foreach ($rows as $row) {
-                $trade = $row->find('td');
-                $pair = $trade[0]->text;
-                $entry = trim($trade[2]->text);
-                $ticket = $row->getAttribute('data-ticket');
-                if (!cache()->has($ticket)) {
-                    $results = Request::sendToActiveChats(
-                        'sendMessage',
-                        ['text' => "$pair\n$entry"],
-                        [
-                            'groups' => true,
-                            'supergroups' => true,
-                            'channels' => false,
-                            'users' => true,
-                        ]
-                    );
-                    cache()->put($ticket, $row, now()->addMonths(3));
+            $data = json_decode(cache($key));
+            if (isset($data->html)) {
+                ini_set('memory_limit', '1024M');
+                $dom = new Dom;
+                $dom->load($data->html);
+                $rows = $dom->find('.orders_open > table.explorer_tradeslist__table > tbody > tr.explorer_tradeslist__row');
+                foreach ($rows as $row) {
+                    $trade = $row->find('td');
+                    $pair = $trade[0]->text;
+                    $entry = trim($trade[2]->text);
+                    $ticket = $row->getAttribute('data-ticket');
+                    if (!cache()->has($ticket)) {
+                        $results = Request::sendToActiveChats(
+                            'sendMessage',
+                            ['text' => "$pair\n$entry"],
+                            [
+                                'groups' => true,
+                                'supergroups' => true,
+                                'channels' => false,
+                                'users' => true,
+                            ]
+                        );
+                        cache()->put($ticket, $row, now()->addMonths(3));
+                    }
                 }
             }
         }
